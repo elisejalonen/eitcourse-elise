@@ -1,6 +1,9 @@
 ---
 title: "Survey on favourite pets"
-author: "Elise Jalonen"
+author: 
+  - name: "Elise Jalonen"
+    affiliation: "Your university"
+    email: elise@gmail.com
 editor: visual
 ---
 
