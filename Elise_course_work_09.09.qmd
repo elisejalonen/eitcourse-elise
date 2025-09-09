@@ -1,5 +1,5 @@
 ---
-title: "Survey on favorite pets"
+title: "Survey on favourite pets"
 author: "Elise Jalonen"
 editor: visual
 ---
@@ -8,37 +8,94 @@ editor: visual
 
 *The survey used data collected in spring 2025 from four cities in four countries*
 
+*Here we can see a mind map on a totally different topic.* See the mind map in @fig-one
+
+![Figure 1. Mind map of survey analysis](images/Untitled-2025-09-09-1234-01.png){#fig-one}
+
 # Download the file
 
-`{r} download.file( url = "https://raw.githubusercontent.com/tdscience/course/main/data/people.csv", destfile = "data/people.csv" )`
+```{r}
+download.file(
+  url = "https://raw.githubusercontent.com/elisejalonen/eitcourse/main/people.csv",
+  destfile = "people.csv")
+```
 
 ## *Check what the data looks like*
 
 ```{r}
-people <- read.csv("data/people.csv")
+library(ggplot2)
+library(dplyr)
+#install.packages("maps")
+library(maps)
+#install.packages("countrycode")
+library(countrycode)
+
+people <- read.csv("people.csv")
 head(people)
 ```
+
 *Remove all data that isn't right*
 
 ```{r}
 people_unique <- people %>% distinct()
 
 nrow(people_unique)
-```
-
-*Check how many people responded*
-
-
-```{r}
-library(dplyr)
 str(people_unique)
-nrow(people_unique)
 ```
 
 *Check which animals are the most popular*
 
 ```{r}
 people_unique %>% count(animal, sort = TRUE)
+```
+
+*Check which countries are people from*
+
+```{r}
+people_unique %>% count(from, sort = TRUE)
+world_map <- map_data("world")
+
+location_coords <- data.frame(
+  from = c("China", "Munich Germany", "Tartu Estonia", "Bogota Colombia", 
+           "Gorgan Iran", "Guadalajara Mexico", "Hereford UK", 
+           "Lisbon Portugal", "Malaga"),
+  lat = c(35.8617, 48.1351, 58.3806, 4.7110, 
+          36.8433, 20.6597, 52.0567, 
+          38.7223, 36.7213),
+  long = c(104.1954, 11.5820, 26.7291, -74.0721, 
+           54.4431, -103.3496, -2.7158, 
+           -9.1393, -4.4214)
+)
+
+# Count people by location and join with coordinates
+people_with_coords <- people %>%
+  count(from, name = "participants") %>%
+  left_join(location_coords, by = "from") %>%
+  filter(!is.na(lat))  # Keep only locations with coordinates
+
+# Create map with sized dots
+ggplot() +
+  geom_polygon(data = world_map, 
+               aes(x = long, y = lat, group = group),
+               fill = "lightblue", color = "white", size = 0.1) +
+  geom_point(data = people_with_coords,
+             aes(x = long, y = lat, size = participants), 
+             color = "purple", alpha = 0.7) +
+  scale_size_continuous(range = c(3, 12), 
+                       name = "Number of\nParticipants",
+                       breaks = c(1, 2, 3, 4),
+                       guide = guide_legend(override.aes = list(alpha = 1))) +
+  theme_void() +
+  labs(title = "Survey Participants by Location",
+       subtitle = "Dot size shows number of people from each place") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 12),
+    legend.position = "bottom",
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 10)
+  )
+
 ```
 
 ------------------------------------------------------------------------
