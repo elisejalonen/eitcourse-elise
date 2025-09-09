@@ -1,0 +1,44 @@
+---
+title: "Survey on favorite pets"
+author: "Elise Jalonen"
+editor: visual
+---
+
+# The description of the data used in the study
+
+*The survey used data collected in spring 2025 from four cities in four countries*
+
+# Download the file
+
+`{r} download.file( url = "https://raw.githubusercontent.com/tdscience/course/main/data/people.csv", destfile = "data/people.csv" )`
+
+## *Check what the data looks like*
+
+```{r}
+people <- read.csv("data/people.csv")
+head(people)
+```
+*Remove all data that isn't right*
+
+```{r}
+people_unique <- people %>% distinct()
+
+nrow(people_unique)
+```
+
+*Check how many people responded*
+
+
+```{r}
+library(dplyr)
+str(people_unique)
+nrow(people_unique)
+```
+
+*Check which animals are the most popular*
+
+```{r}
+people_unique %>% count(animal, sort = TRUE)
+```
+
+------------------------------------------------------------------------
